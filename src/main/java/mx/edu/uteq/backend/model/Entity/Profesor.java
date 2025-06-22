@@ -2,10 +2,13 @@ package mx.edu.uteq.backend.model.Entity;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Transient;
 import lombok.Data;
 import mx.edu.uteq.backend.model.dto.Grupo;
@@ -21,4 +24,16 @@ public class Profesor {
 
     @Transient
     private List<Grupo> grupos;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "profesor_id")
+    List<ProfesorGrupo> profesoresGrupos;
+
+    public void addProfesoresGrupos (ProfesorGrupo pg){
+        profesoresGrupos.add(pg);
+    }
+
+    public void removeProfesoresGrupos (ProfesorGrupo pg){
+        profesoresGrupos.remove(pg);
+    }
 }
