@@ -44,20 +44,48 @@ public class ProfesorService {
     @Transactional
     public boolean addProfesorGrupo (int profesorId, int grupoid){
 
-        Optional<Profesor> opt = repo.findById(profesorId);
+        Optional<Profesor> opt = repo.findById(profesorId);//¿es necesario?
         if(opt.isPresent()){
             //Se busca al profesor para saber que Id de profesor corresponde al grupo ingresado
             Profesor profesor = opt.get();
+            //Se busca al grupo para saber si todavía existe, al ser un sistema distribuido puede eliminarse el regstro sin ser notificados
+            Grupo grupo = grupoClient.getById(grupoid);
+            if(grupo != null){
+                ProfesorGrupo profesorGrupo = new ProfesorGrupo();
+                profesorGrupo.setGrupoId(grupoid);
 
-            ProfesorGrupo profesorGrupo = new ProfesorGrupo();
-            profesorGrupo.setGrupoId(grupoid);
+                profesor.addProfesoresGrupos(profesorGrupo);
 
-            profesor.addProfesoresGrupos(profesorGrupo);
+                repo.save(profesor);
 
-            repo.save(profesor);
-
-            return true;
+                return true;
+            }
         }
         return false;
     }
+
+    @Transactional
+    public boolean removeProfesorGrupo (int profesorId, int grupoid){
+
+        Optional<Profesor> opt = repo.findById(profesorId);//¿es necesario?
+        if(opt.isPresent()){
+            //Se busca al profesor para saber que Id de profesor corresponde al grupo ingresado
+            Profesor profesor = opt.get();
+            //Se busca al grupo para saber si todavía existe, al ser un sistema distribuido puede eliminarse el regstro sin ser notificados
+            Grupo grupo = grupoClient.getById(grupoid);
+            if(grupo != null){
+                ProfesorGrupo profesorGrupo = new ProfesorGrupo();
+                profesorGrupo.setGrupoId(grupoid);
+
+                profesor.removeProfesoresGrupos(profesorGrupo);
+
+                repo.save(profesor);
+
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
 }

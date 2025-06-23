@@ -21,6 +21,7 @@ public class Profesor {
     private String nombre;
     private String correo;
     private String cubiculo;
+    private boolean activo;
 
     @Transient
     private List<Grupo> grupos;
