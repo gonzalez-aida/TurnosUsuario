@@ -65,26 +65,24 @@ public class ProfesorController {
         return ResponseEntity.notFound().build();
     }
     
-    @PostMapping("/{idProfesor}/grupos")
+    @PostMapping("/{idProfesor}/agregar/grupos")
     public ResponseEntity<?> addProfesorGrupo(@PathVariable int idProfesor, @RequestBody List<Grupo> grupos) {        
-        for(int i=0; i<grupos.size();i++)
-        {
-            if(!profesorService.addProfesorGrupo(idProfesor, grupos.get(i).getId())){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Algunos grupos no pudieron ser asignados o no existen.");
-            }
+        boolean status = profesorService.addProfesoresGrupos(idProfesor, grupos);
+        if(status){
+            return ResponseEntity.ok("Grupos asignados exitosamente.");
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Algunos grupos no pudieron ser agregados o no existen.");
         }
-        return ResponseEntity.ok("Grupos asignados exitosamente.");
     }
     
-    @PutMapping("/{idProfesor}/grupos")
+    @PutMapping("/{idProfesor}/eliminar/grupos")
     public ResponseEntity<?> removeProfesorGrupo(@PathVariable int idProfesor, @RequestBody List<Grupo> grupos) {
-        for(int i=0; i<grupos.size();i++)
-        {
-            if(!profesorService.addProfesorGrupo(idProfesor, grupos.get(i).getId())){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Algunos grupos no pudieron ser eliminados o no existen.");
-            }
+        boolean status = profesorService.removeProfesoresGrupos(idProfesor, grupos);
+        if(status){
+            return ResponseEntity.ok("Grupos eliminados exitosamente.");
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Algunos grupos no pudieron ser eliminados o no existen.");
         }
-        return ResponseEntity.ok("Grupos eliminados exitosamente.");
     }
     
     @DeleteMapping("/{id}")
@@ -92,6 +90,15 @@ public class ProfesorController {
         Optional<Profesor> opt = profesorService.getById(id);
         if (opt.isPresent()) {
             profesorService.deleteById(id);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/eliminar/grupos/{id}")
+    public ResponseEntity<?> borrarGrupo(@PathVariable int id) {
+        boolean status = profesorService.removeGrupo(id);
+        if(status){
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.notFound().build();

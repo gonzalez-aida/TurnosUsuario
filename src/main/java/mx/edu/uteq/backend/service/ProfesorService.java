@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import mx.edu.uteq.backend.client.GrupoRest;
 import mx.edu.uteq.backend.model.Entity.Profesor;
 import mx.edu.uteq.backend.model.Entity.ProfesorGrupo;
+import mx.edu.uteq.backend.model.Repositroty.ProfesorGrupoRepo;
 import mx.edu.uteq.backend.model.Repositroty.ProfesorRepo;
 import mx.edu.uteq.backend.model.dto.Grupo;
 
@@ -20,6 +21,9 @@ public class ProfesorService {
 
     @Autowired
     private GrupoRest grupoClient;
+
+    @Autowired
+    private ProfesorGrupoRepo profesorGrupoRepo;
 
     @Transactional(readOnly = true)
     public List<Profesor> getAll(){
@@ -87,5 +91,72 @@ public class ProfesorService {
         return false;
     }
 
-    
+    @Transactional
+    public boolean addProfesoresGrupos (int profesorId, List<Grupo> grupos){
+        boolean allExist = false;
+        Optional<Profesor> opt = repo.findById(profesorId);
+        if(opt.isPresent()){
+            Profesor profesor = opt.get();
+            for (int i=0; i<grupos.size(); i++){
+                Grupo grupo = grupoClient.getById(grupos.get(i).getId());
+
+                if(grupo == null){
+                    allExist = false;
+                    break;
+                }
+                else{
+                    allExist = true;
+                    ProfesorGrupo profesorGrupo = new ProfesorGrupo();
+                    profesorGrupo.setGrupoId(grupo.getId());
+
+                    profesor.addProfesoresGrupos(profesorGrupo);
+                }
+            }
+            if(allExist){
+                repo.save(profesor);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transactional
+    public boolean removeProfesoresGrupos (int profesorId, List<Grupo> grupos){
+        boolean allExist = false;
+        Optional<Profesor> opt = repo.findById(profesorId);
+        if(opt.isPresent()){
+            Profesor profesor = opt.get();
+            for (int i=0; i<grupos.size(); i++){
+                Grupo grupo = grupoClient.getById(grupos.get(i).getId());
+
+                if(grupo == null){
+                    allExist = false;
+                    break;
+                }
+                else{
+                    allExist = true;
+                    ProfesorGrupo profesorGrupo = new ProfesorGrupo();
+                    profesorGrupo.setGrupoId(grupo.getId());
+
+                    profesor.removeProfesoresGrupos(profesorGrupo);
+                }
+            }
+            if(allExist){
+                repo.save(profesor);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Transactional
+    public boolean removeGrupo (int grupoId){
+        boolean status = profesorGrupoRepo.existsByGrupoId(grupoId);
+        if(status){
+            profesorGrupoRepo.deleteByGrupoId(grupoId);
+            return true;
+        }
+        return false;
+    }
+
 }
